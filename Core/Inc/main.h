@@ -29,7 +29,6 @@ extern "C" {
 /* Includes ------------------------------------------------------------------*/
 #include "stm32h5xx_hal.h"
 #include "stm32h5xx_nucleo.h"
-#include <stdio.h>
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -69,6 +68,11 @@ void Error_Handler(void);
 #define TRACE_D2_GPIO_Port GPIOE
 #define TRACE_D3_Pin GPIO_PIN_6
 #define TRACE_D3_GPIO_Port GPIOE
+#define BUTTON_Pin GPIO_PIN_13
+#define BUTTON_GPIO_Port GPIOC
+#define BUTTON_EXTI_IRQn EXTI13_IRQn
+#define LED_Y_Pin GPIO_PIN_4
+#define LED_Y_GPIO_Port GPIOF
 #define STLK_MCO_Pin GPIO_PIN_0
 #define STLK_MCO_GPIO_Port GPIOH
 #define RMII_MDC_Pin GPIO_PIN_1
@@ -85,12 +89,16 @@ void Error_Handler(void);
 #define RMII_RXD0_GPIO_Port GPIOC
 #define RMII_RXD1_Pin GPIO_PIN_5
 #define RMII_RXD1_GPIO_Port GPIOC
+#define LED_G_Pin GPIO_PIN_0
+#define LED_G_GPIO_Port GPIOB
 #define UCPD_CC1_Pin GPIO_PIN_13
 #define UCPD_CC1_GPIO_Port GPIOB
 #define UCPD_CC2_Pin GPIO_PIN_14
 #define UCPD_CC2_GPIO_Port GPIOB
 #define RMII_TXD1_Pin GPIO_PIN_15
 #define RMII_TXD1_GPIO_Port GPIOB
+#define LED_R_Pin GPIO_PIN_4
+#define LED_R_GPIO_Port GPIOG
 #define UCPD_FLT_Pin GPIO_PIN_7
 #define UCPD_FLT_GPIO_Port GPIOG
 #define UCDP_DBn_Pin GPIO_PIN_9
