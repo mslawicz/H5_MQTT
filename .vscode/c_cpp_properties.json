@@ -1,0 +1,34 @@
+{
+    "configurations": [
+        {
+            "name": "STM32",
+            "includePath": [
+                "${workspaceFolder}/**"
+            ],
+            "defines": [
+                "STM32H563xx",
+                "USE_HAL_DRIVER",
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE",
+                "STM32_THREAD_SAFE_STRATEGY=2",
+				"TX_SINGLE_MODE_NON_SECURE=1",
+				"TX_INCLUDE_USER_DEFINE_FILE",
+				"UX_INCLUDE_USER_DEFINE_FILE",
+				"USE_NUCLEO_64"
+            ],
+            "windowsSdkVersion": "10.0.18362.0",
+            "compilerPath": "C:\\Program Files (x86)\\Arm GNU Toolchain arm-none-eabi\\13.2 Rel1\\bin\\arm-none-eabi-gcc.exe",
+            "compilerArgs": [
+                "-mthumb",
+                "-mcpu=cortex-m33",
+                "-mfloat-abi=hard",
+                "-mfpu=fpv4-sp-d16"      
+            ],
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "gcc-arm"
+        }
+    ],
+    "version": 4
+}

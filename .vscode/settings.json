@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "app_threadx.h": "c",
+        "cstdint": "c",
+        "main.h": "c",
+        "tx_api.h": "c",
+        "app_azure_rtos.h": "c",
+        "stm32h5xx_hal.h": "c"
+    }
+}
