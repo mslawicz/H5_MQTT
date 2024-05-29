@@ -740,6 +740,7 @@ set(NETXDUO_SRC
 	Middlewares/ST/netxduo/addons/mqtt/nxd_mqtt_client.c		
 	Middlewares/ST/netxduo/common/drivers/ethernet/lan8742/nx_stm32_phy_driver.c
 	Middlewares/ST/netxduo/common/drivers/ethernet/nx_stm32_eth_driver.c	
+	Middlewares/ST/netxduo/addons/dns/nxd_dns.c
 )
 
 set_source_files_properties(${NETXDUO_SRC} PROPERTIES COMPILE_FLAGS -Wno-unused-parameter)
@@ -766,6 +767,7 @@ set(ASMM_SRC
 
 set_source_files_properties(Core/Src/app_threadx.c PROPERTIES COMPILE_FLAGS -Wno-unused-parameter)
 set_source_files_properties(AZURE_RTOS/App/app_azure_rtos.c PROPERTIES COMPILE_FLAGS -Wno-unused-parameter)
+set_source_files_properties(Drivers/BSP/Components/lan8742/lan8742.c PROPERTIES COMPILE_FLAGS -Wno-unused-parameter)
 
 # project source files
 file(GLOB PROJECT_SOURCE_FILES CONFIGURE_DEPENDS Core/Src/*.c)
@@ -802,6 +804,7 @@ NetXDuo/App
 	NetXDuo/Target
 	Drivers/BSP/Components/lan8742
 	Middlewares/ST/netxduo/common/drivers/ethernet
+	Middlewares/ST/netxduo/addons/dns
 	.
 )
 
