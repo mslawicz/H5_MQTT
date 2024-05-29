@@ -738,9 +738,12 @@ set(NETXDUO_SRC
 	Middlewares/ST/netxduo/common/src/nxd_nd_cache_ip_address_find.c
 	Middlewares/ST/netxduo/common/src/nx_http_proxy_client.c
 	Middlewares/ST/netxduo/addons/mqtt/nxd_mqtt_client.c		
+	Middlewares/ST/netxduo/common/drivers/ethernet/lan8742/nx_stm32_phy_driver.c
+	Middlewares/ST/netxduo/common/drivers/ethernet/nx_stm32_eth_driver.c	
 )
 
 set_source_files_properties(${NETXDUO_SRC} PROPERTIES COMPILE_FLAGS -Wno-unused-parameter)
+set_source_files_properties(Middlewares/ST/netxduo/common/drivers/ethernet/nx_stm32_eth_driver.c PROPERTIES COMPILE_FLAGS "-Wno-unused-parameter -Wno-sign-compare")
 
 # ASM sources
 set(ASM_SRC
@@ -771,6 +774,7 @@ file(GLOB PROJECT_SOURCE_FILES CONFIGURE_DEPENDS Core/Src/*.c)
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
 	${PROJECT_SOURCE_FILES}
 	Drivers/BSP/STM32H5xx_Nucleo/stm32h5xx_nucleo.c
+	Drivers/BSP/Components/lan8742/lan8742.c
 	${ASM_SRC}
 	${ASMM_SRC}
 	${HAL_SRC}
@@ -795,6 +799,9 @@ NetXDuo/App
 	Middlewares/ST/netxduo/addons/mqtt
 	Middlewares/ST/threadx/ports/cortex_m33/gnu/inc
 	Drivers/CMSIS/Include
+	NetXDuo/Target
+	Drivers/BSP/Components/lan8742
+	Middlewares/ST/netxduo/common/drivers/ethernet
 	.
 )
 

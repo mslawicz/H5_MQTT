@@ -101,9 +101,7 @@ VOID tx_application_define(VOID *first_unused_memory)
     if (status != TX_SUCCESS)
     {
       /* USER CODE BEGIN  App_ThreadX_Init_Error */
-      while(1)
-      {
-      }
+      Error_Handler();
       /* USER CODE END  App_ThreadX_Init_Error */
     }
     /* USER CODE BEGIN  App_ThreadX_Init_Success */
@@ -129,9 +127,7 @@ VOID tx_application_define(VOID *first_unused_memory)
     if (status != NX_SUCCESS)
     {
       /* USER CODE BEGIN  MX_NetXDuo_Init_Error */
-      while(1)
-      {
-      }
+      Error_Handler();
       /* USER CODE END  MX_NetXDuo_Init_Error */
     }
     /* USER CODE BEGIN  MX_NetXDuo_Init_Success */
