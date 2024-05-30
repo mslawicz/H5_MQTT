@@ -17,6 +17,10 @@
 #define MQTT_THREAD_STACK_SIZE 1024
 #define MQTT_THREAD_PRIORITY    2
 #define MQTT_CLIENT_STACK_SIZE 1024
+#define MQTT_CLIENT_MEMORY_SIZE 1024
+#define BROKER_IP   IP_ADDRESS(192, 168, 1, 1)
+#define MQTT_PORT   NXD_MQTT_CLIENT_NONTLS_PORT
+#define MQTT_KEEP_ALIVE_INTERVAL    0
 
 NX_PACKET_POOL nx_packet_pool;
 NX_IP ip_0;
@@ -27,6 +31,8 @@ NXD_MQTT_CLIENT mqtt_client;
 const CHAR* clientId = CLIENT_ID;
 UCHAR mqtt_thread_stack[MQTT_THREAD_STACK_SIZE];
 ULONG mqtt_client_stack[MQTT_CLIENT_STACK_SIZE];
+ULONG mqtt_client_memory_buffer[MQTT_CLIENT_MEMORY_SIZE];
+NXD_ADDRESS broker_ip;
 
 VOID mqttClientThreadEntry(ULONG initial_input)
 {
@@ -62,7 +68,12 @@ VOID mqttClientThreadEntry(ULONG initial_input)
     status |= nx_ip_address_set(&ip_0, IP_ADDRESS_CLIENT, NETMASK);
 
     /* MQTT client initialization */
-    status |= nxd_mqtt_client_create(&mqtt_client, "MQTT Client", (CHAR*)clientId, strlen(clientId), &ip_0, &nx_packet_pool, mqtt_client_stack, MQTT_CLIENT_STACK_SIZE, MQTT_THREAD_PRIORITY, NULL, 0);
+    status |= nxd_mqtt_client_create(&mqtt_client, "MQTT Client", (CHAR*)clientId, strlen(clientId), &ip_0, &nx_packet_pool, mqtt_client_stack, MQTT_CLIENT_STACK_SIZE, MQTT_THREAD_PRIORITY, mqtt_client_memory_buffer, MQTT_CLIENT_MEMORY_SIZE);
+
+    /* Connect to MQTT broker */
+    broker_ip.nxd_ip_version = 4;
+    broker_ip.nxd_ip_address.v4 = BROKER_IP;
+    status |= nxd_mqtt_client_connect(&mqtt_client, &broker_ip, MQTT_PORT, MQTT_KEEP_ALIVE_INTERVAL, NX_TRUE, NX_NO_WAIT);
 
     if(status)
     {
