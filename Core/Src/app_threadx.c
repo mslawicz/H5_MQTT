@@ -70,7 +70,7 @@ UINT App_ThreadX_Init(VOID *memory_ptr)
   {
     return TX_POOL_ERROR;
   }  
-  if(tx_thread_create(&mqttClientThread, "MQTT client thread", mqttClientThreadEntry, 1, pointer, MQTT_CLIENT_STACK_SIZE, 15, 15, TX_NO_TIME_SLICE, TX_AUTO_START))
+  if(tx_thread_create(&mqttClientThread, "MQTT client thread", mqttClientThreadEntry, 1, pointer, MQTT_CLIENT_STACK_SIZE, MQTT_CLIENT_PRIORITY, MQTT_CLIENT_PRIORITY, TX_NO_TIME_SLICE, TX_AUTO_START))
   {
     return TX_THREAD_ERROR;
   }    

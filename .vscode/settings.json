@@ -6,6 +6,8 @@
         "tx_api.h": "c",
         "app_azure_rtos.h": "c",
         "stm32h5xx_hal.h": "c",
-        "app_netxduo.h": "c"
+        "app_netxduo.h": "c",
+        "mqtt_client.h": "c",
+        "nxd_mqtt_client.h": "c"
     }
 }

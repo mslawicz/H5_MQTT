@@ -3,6 +3,8 @@
 #include "nx_api.h"
 #include "nxd_dns.h"
 #include "nx_stm32_eth_driver.h"
+#include "nxd_mqtt_client.h"
+
 
 #define NX_PACKET_PAYLOAD_SIZE  1536
 #define NX_PACKET_POOL_SIZE ((NX_PACKET_PAYLOAD_SIZE + sizeof(NX_PACKET)) * 10)
@@ -11,12 +13,20 @@
 #define ARP_CACHE_SIZE 1024
 #define IP_ADDRESS_DNS_SERVER 0x08080808 // 8.8.8.8 (Google DNS)
 #define IP_ADDRESS_CLIENT IP_ADDRESS(192, 168, 1, 101)
+#define CLIENT_ID   "C2030"
+#define MQTT_THREAD_STACK_SIZE 1024
+#define MQTT_THREAD_PRIORITY    2
+#define MQTT_CLIENT_STACK_SIZE 1024
 
 NX_PACKET_POOL nx_packet_pool;
 NX_IP ip_0;
 NX_DNS dns_0;
 UCHAR pool_memory[NX_PACKET_POOL_SIZE];
 UCHAR arp_cache_memory[ARP_CACHE_SIZE];
+NXD_MQTT_CLIENT mqtt_client;
+const CHAR* clientId = CLIENT_ID;
+UCHAR mqtt_thread_stack[MQTT_THREAD_STACK_SIZE];
+ULONG mqtt_client_stack[MQTT_CLIENT_STACK_SIZE];
 
 VOID mqttClientThreadEntry(ULONG initial_input)
 {
@@ -50,6 +60,9 @@ VOID mqttClientThreadEntry(ULONG initial_input)
 
     /* Start network */
     status |= nx_ip_address_set(&ip_0, IP_ADDRESS_CLIENT, NETMASK);
+
+    /* MQTT client initialization */
+    status |= nxd_mqtt_client_create(&mqtt_client, "MQTT Client", (CHAR*)clientId, strlen(clientId), &ip_0, &nx_packet_pool, mqtt_client_stack, MQTT_CLIENT_STACK_SIZE, MQTT_THREAD_PRIORITY, NULL, 0);
 
     if(status)
     {
