@@ -23,7 +23,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "nxd_dns.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -33,25 +33,16 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define NX_PACKET_PAYLOAD_SIZE  1536
-#define NX_PACKET_POOL_SIZE ((NX_PACKET_PAYLOAD_SIZE + sizeof(NX_PACKET)) * 10)
-#define NETMASK 0xFFFFFF00UL // 255.255.255.0
-#define NX_IP_SIZE  2048
-#define ARP_CACHE_SIZE 1024
-#define IP_ADDRESS_DNS_SERVER 0x08080808 // 8.8.8.8 (Google DNS)
-#define IP_ADDRESS_CLIENT IP_ADDRESS(192, 168, 1, 101)
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-#define RETURN_ON_ERROR(x) if(x) return x
+
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
-NX_PACKET_POOL nx_packet_pool;
-NX_IP ip_0;
-NX_DNS dns_0;
 
 /* USER CODE END PV */
 
@@ -75,44 +66,6 @@ UINT MX_NetXDuo_Init(VOID *memory_ptr)
   /* USER CODE END App_NetXDuo_MEM_POOL */
   /* USER CODE BEGIN 0 */
 
-    /* Initialize the NetX system. */
-    nx_system_initialize();
-
-    /* Create a packet pool. */
-    ret = nx_packet_pool_create(&nx_packet_pool, "Packet Pool", NX_PACKET_PAYLOAD_SIZE, memory_ptr, NX_PACKET_POOL_SIZE);
-    RETURN_ON_ERROR(ret);
-    
-    /* Create an IP instance. */
-    ret = nx_ip_create(&ip_0, "IP Instance 0", IP_ADDRESS_CLIENT, NETMASK, &nx_packet_pool, nx_stm32_eth_driver, memory_ptr, NX_IP_SIZE, 1);
-    RETURN_ON_ERROR(ret);
-
-    /* Enable ARP and supply ARP cache memory. */
-    ret = nx_arp_enable(&ip_0, memory_ptr, ARP_CACHE_SIZE);
-    RETURN_ON_ERROR(ret);
-
-    /* Enable the ICMP. */
-    ret = nx_icmp_enable(&ip_0);
-    RETURN_ON_ERROR(ret);
-
-    /* Enable the UDP protocol. */
-    ret = nx_udp_enable(&ip_0);
-    RETURN_ON_ERROR(ret);
-
-    /* Enable the TCP protocol. */
-    ret = nx_tcp_enable(&ip_0);
-    RETURN_ON_ERROR(ret);
-  /* USER CODE END 0 */
-
-  /* USER CODE BEGIN MX_NetXDuo_Init */
-    /* DNS initialization */
-    ret = nx_dns_create(&dns_0, &ip_0, (UCHAR *)"DNS Instance");
-    RETURN_ON_ERROR(ret);
-    ret = nx_dns_server_add(&dns_0, IP_ADDRESS_DNS_SERVER);
-    RETURN_ON_ERROR(ret);
-    
-    /* Start network */
-    ret = nx_ip_address_set(&ip_0, IP_ADDRESS_CLIENT, NETMASK);
-    RETURN_ON_ERROR(ret);
   /* USER CODE END MX_NetXDuo_Init */
 
   return ret;

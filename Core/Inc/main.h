@@ -47,7 +47,9 @@ extern "C" {
 
 /* Exported macro ------------------------------------------------------------*/
 /* USER CODE BEGIN EM */
-
+#if !defined(UNUSED)
+#define UNUSED(x) ((void)(x))
+#endif /* UNUSED */
 /* USER CODE END EM */
 
 /* Exported functions prototypes ---------------------------------------------*/
@@ -125,7 +127,7 @@ void Error_Handler(void);
 #define ARD_D0_RX_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
-
+#define MS_TO_TICKS(ms) (ms * TX_TIMER_TICKS_PER_SECOND / 1000)
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus
