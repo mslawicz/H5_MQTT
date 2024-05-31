@@ -1,16 +1,17 @@
 #include "mqtt_client.h"
 #include "main.h"
 #include "nx_api.h"
+#include "nx_ip.h"
 #include "nxd_dns.h"
 #include "nx_stm32_eth_driver.h"
 #include "nxd_mqtt_client.h"
 
 
 #define NX_PACKET_PAYLOAD_SIZE  1536
-#define NX_PACKET_POOL_SIZE ((NX_PACKET_PAYLOAD_SIZE + sizeof(NX_PACKET)) * 10)
+#define NX_PACKET_POOL_SIZE (NX_PACKET_PAYLOAD_SIZE * 10)
 #define NETMASK 0xFFFFFF00UL // 255.255.255.0
-#define NX_IP_SIZE  2048
-#define ARP_CACHE_SIZE 1024
+#define IP_MEMORY_SIZE  2048
+#define ARP_CACHE_SIZE 512
 #define IP_ADDRESS_DNS_SERVER 0x08080808 // 8.8.8.8 (Google DNS)
 #define IP_ADDRESS_CLIENT IP_ADDRESS(192, 168, 1, 101)
 #define CLIENT_ID   "C2030"
@@ -26,6 +27,7 @@ NX_PACKET_POOL nx_packet_pool;
 NX_IP ip_0;
 NX_DNS dns_0;
 UCHAR pool_memory[NX_PACKET_POOL_SIZE];
+UCHAR ip_memory[IP_MEMORY_SIZE];
 UCHAR arp_cache_memory[ARP_CACHE_SIZE];
 NXD_MQTT_CLIENT mqtt_client;
 const CHAR* clientId = CLIENT_ID;
@@ -46,7 +48,7 @@ VOID mqttClientThreadEntry(ULONG initial_input)
     status = nx_packet_pool_create(&nx_packet_pool, "Packet Pool", NX_PACKET_PAYLOAD_SIZE, pool_memory, NX_PACKET_POOL_SIZE);
 
     /* Create an IP instance. */
-    status |= nx_ip_create(&ip_0, "IP Instance 0", IP_ADDRESS_CLIENT, NETMASK, &nx_packet_pool, nx_stm32_eth_driver, pool_memory, NX_IP_SIZE, 1);
+    status |= nx_ip_create(&ip_0, "IP Instance 0", IP_ADDRESS_CLIENT, NETMASK, &nx_packet_pool, nx_stm32_eth_driver, ip_memory, IP_MEMORY_SIZE, 1);
 
     /* Enable ARP and supply ARP cache memory. */
     status |= nx_arp_enable(&ip_0, arp_cache_memory, ARP_CACHE_SIZE);
