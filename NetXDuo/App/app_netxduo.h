@@ -29,6 +29,7 @@ extern "C" {
 #include "nx_api.h"
 
 /* Private includes ----------------------------------------------------------*/
+#include "nx_stm32_eth_driver.h"
 
 /* USER CODE BEGIN Includes */
 

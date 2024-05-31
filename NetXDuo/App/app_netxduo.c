@@ -66,6 +66,9 @@ UINT MX_NetXDuo_Init(VOID *memory_ptr)
   /* USER CODE END App_NetXDuo_MEM_POOL */
   /* USER CODE BEGIN 0 */
 
+  /* USER CODE END 0 */
+
+  /* USER CODE BEGIN MX_NetXDuo_Init */
   /* USER CODE END MX_NetXDuo_Init */
 
   return ret;
