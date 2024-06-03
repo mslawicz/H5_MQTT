@@ -20,9 +20,11 @@
 #define MQTT_CLIENT_STACK_SIZE 1024
 #define MQTT_CLIENT_MEMORY_SIZE 1024
 //#define BROKER_IP   IP_ADDRESS(3, 73, 167, 11)  //broker.hivemq.com
-#define BROKER_IP   IP_ADDRESS(52, 13, 116, 147)  //public.mqtthq.com
+#define BROKER_IP   IP_ADDRESS(192, 168, 1, 18)  //etteplan laptop
 #define MQTT_PORT   NXD_MQTT_CLIENT_NONTLS_PORT
 #define MQTT_KEEP_ALIVE_INTERVAL    300
+#define TOPIC   "test topic"
+#define MESSAGE "test message"
 
 NX_PACKET_POOL nx_packet_pool;
 NX_IP ip_0;
@@ -36,6 +38,10 @@ UCHAR mqtt_thread_stack[MQTT_THREAD_STACK_SIZE];
 ULONG mqtt_client_stack[MQTT_CLIENT_STACK_SIZE];
 ULONG mqtt_client_memory_buffer[MQTT_CLIENT_MEMORY_SIZE];
 NXD_ADDRESS broker_ip;
+CHAR* topic_str = TOPIC;
+CHAR* msg_str = MESSAGE;
+
+VOID mqtt_receive_callback(NXD_MQTT_CLIENT* client_ptr, UINT number_of_messages);
 
 VOID mqttClientThreadEntry(ULONG initial_input)
 {
@@ -60,9 +66,11 @@ VOID mqttClientThreadEntry(ULONG initial_input)
 
     /* Enable the ICMP. */                
     status |= nx_icmp_enable(&ip_0);
+    printf("NX ICMP creation with status %X\r\n", status);
 
     /* Enable the UDP protocol. */
     status |= nx_udp_enable(&ip_0);
+    printf("NX UDP creation with status %X\r\n", status);
 
     /* Enable the TCP protocol. */
     status |= nx_tcp_enable(&ip_0);
@@ -81,19 +89,35 @@ VOID mqttClientThreadEntry(ULONG initial_input)
     status |= nxd_mqtt_client_create(&mqtt_client, "MQTT Client", (CHAR*)clientId, strlen(clientId), &ip_0, &nx_packet_pool, mqtt_client_stack, MQTT_CLIENT_STACK_SIZE, MQTT_THREAD_PRIORITY, mqtt_client_memory_buffer, MQTT_CLIENT_MEMORY_SIZE);
     printf("MQTT client initialized with status %X\r\n", status);
 
+    // Register the receive callback
+    status |= nxd_mqtt_client_receive_notify_set(&mqtt_client, mqtt_receive_callback);
+    printf("MQTT receive notification set with status %X\r\n", status);
+
     /* Connect to MQTT broker */
     broker_ip.nxd_ip_version = 4;
     broker_ip.nxd_ip_address.v4 = BROKER_IP;
     status |= nxd_mqtt_client_connect(&mqtt_client, &broker_ip, MQTT_PORT, MQTT_KEEP_ALIVE_INTERVAL, NX_FALSE, NX_WAIT_FOREVER);
     printf("MQTT client connecting to broker with status %X\r\n", status);
 
-    if(status)
+    if((status != NX_SUCCESS) && (status != NX_IN_PROGRESS))
     {
-        Error_Handler();
+        //Error_Handler();
     }
+
+    status = nxd_mqtt_client_subscribe(&mqtt_client, topic_str, strlen(topic_str), MQTT_PUBLISH_QOS_LEVEL_0);
+    printf("MQTT client subscribed with status %X\r\n", status);
 
     while(1)
     {
         tx_thread_sleep(MS_TO_TICKS(1000));
+        nxd_mqtt_client_publish(&mqtt_client, topic_str, strlen(topic_str), msg_str, strlen(msg_str), NX_FALSE, MQTT_PUBLISH_QOS_LEVEL_0, NX_NO_WAIT);
     } 
+}
+
+
+VOID mqtt_receive_callback(NXD_MQTT_CLIENT* client_ptr, UINT number_of_messages)
+{
+    UNUSED(client_ptr);
+    UNUSED(number_of_messages);
+    HAL_GPIO_TogglePin(LED_Y_GPIO_Port, LED_Y_Pin);
 }
