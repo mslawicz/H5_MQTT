@@ -42,6 +42,7 @@ CHAR* topic_str = TOPIC;
 CHAR* msg_str = MESSAGE;
 
 VOID mqtt_receive_callback(NXD_MQTT_CLIENT* client_ptr, UINT number_of_messages);
+static VOID mqtt_disconnect_callback(NXD_MQTT_CLIENT *client_ptr);
 
 VOID mqttClientThreadEntry(ULONG initial_input)
 {
@@ -57,46 +58,50 @@ VOID mqttClientThreadEntry(ULONG initial_input)
     printf("NX packet pool creation with status %X\r\n", status);
 
     /* Create an IP instance. */
-    status |= nx_ip_create(&ip_0, "IP Instance 0", IP_ADDRESS_CLIENT, NETMASK, &nx_packet_pool, nx_stm32_eth_driver, ip_memory, IP_MEMORY_SIZE, 1);
+    status = nx_ip_create(&ip_0, "IP Instance 0", IP_ADDRESS_CLIENT, NETMASK, &nx_packet_pool, nx_stm32_eth_driver, ip_memory, IP_MEMORY_SIZE, 1);
     printf("NX IP creation with status %X\r\n", status);
 
     /* Enable ARP and supply ARP cache memory. */
-    status |= nx_arp_enable(&ip_0, arp_cache_memory, ARP_CACHE_SIZE);
+    status = nx_arp_enable(&ip_0, arp_cache_memory, ARP_CACHE_SIZE);
     printf("NX ARP creation with status %X\r\n", status);
 
     /* Enable the ICMP. */                
-    status |= nx_icmp_enable(&ip_0);
+    status = nx_icmp_enable(&ip_0);
     printf("NX ICMP creation with status %X\r\n", status);
 
     /* Enable the UDP protocol. */
-    status |= nx_udp_enable(&ip_0);
+    status = nx_udp_enable(&ip_0);
     printf("NX UDP creation with status %X\r\n", status);
 
     /* Enable the TCP protocol. */
-    status |= nx_tcp_enable(&ip_0);
+    status = nx_tcp_enable(&ip_0);
     printf("NX TCP creation with status %X\r\n", status);
 
     /* DNS initialization */
-    status |= nx_dns_create(&dns_0, &ip_0, (UCHAR *)"DNS Instance");
-    status |= nx_dns_server_add(&dns_0, IP_ADDRESS_DNS_SERVER);
+    status = nx_dns_create(&dns_0, &ip_0, (UCHAR *)"DNS Instance");
+    status = nx_dns_server_add(&dns_0, IP_ADDRESS_DNS_SERVER);
     printf("NX adding DNS with status %X\r\n", status);
 
     /* Start network */
-    status |= nx_ip_address_set(&ip_0, IP_ADDRESS_CLIENT, NETMASK);
+    status = nx_ip_address_set(&ip_0, IP_ADDRESS_CLIENT, NETMASK);
     printf("NX setting IP with status %X\r\n", status);
 
     /* MQTT client initialization */
-    status |= nxd_mqtt_client_create(&mqtt_client, "MQTT Client", (CHAR*)clientId, strlen(clientId), &ip_0, &nx_packet_pool, mqtt_client_stack, MQTT_CLIENT_STACK_SIZE, MQTT_THREAD_PRIORITY, mqtt_client_memory_buffer, MQTT_CLIENT_MEMORY_SIZE);
+    status = nxd_mqtt_client_create(&mqtt_client, "MQTT Client", (CHAR*)clientId, strlen(clientId), &ip_0, &nx_packet_pool, mqtt_client_stack, MQTT_CLIENT_STACK_SIZE, MQTT_THREAD_PRIORITY, mqtt_client_memory_buffer, MQTT_CLIENT_MEMORY_SIZE);
     printf("MQTT client initialized with status %X\r\n", status);
 
     // Register the receive callback
-    status |= nxd_mqtt_client_receive_notify_set(&mqtt_client, mqtt_receive_callback);
-    printf("MQTT receive notification set with status %X\r\n", status);
+    status = nxd_mqtt_client_receive_notify_set(&mqtt_client, mqtt_receive_callback);
+    printf("MQTT client receive notification set with status %X\r\n", status);
+
+    /* Register the disconnect notification function. */
+    status = nxd_mqtt_client_disconnect_notify_set(&mqtt_client, mqtt_disconnect_callback);
+    printf("MQTT client disconnect callback set with status %X\r\n", status);
 
     /* Connect to MQTT broker */
     broker_ip.nxd_ip_version = 4;
     broker_ip.nxd_ip_address.v4 = BROKER_IP;
-    status |= nxd_mqtt_client_connect(&mqtt_client, &broker_ip, MQTT_PORT, MQTT_KEEP_ALIVE_INTERVAL, NX_FALSE, NX_WAIT_FOREVER);
+    status = nxd_mqtt_client_connect(&mqtt_client, &broker_ip, MQTT_PORT, MQTT_KEEP_ALIVE_INTERVAL, NX_FALSE, NX_WAIT_FOREVER);
     printf("MQTT client connecting to broker with status %X\r\n", status);
 
     if((status != NX_SUCCESS) && (status != NX_IN_PROGRESS))
@@ -121,4 +126,11 @@ VOID mqtt_receive_callback(NXD_MQTT_CLIENT* client_ptr, UINT number_of_messages)
     UNUSED(client_ptr);
     UNUSED(number_of_messages);
     HAL_GPIO_TogglePin(LED_Y_GPIO_Port, LED_Y_Pin);
+}
+
+/* Define the disconnect notify function. */
+static VOID mqtt_disconnect_callback(NXD_MQTT_CLIENT *client_ptr)
+{
+    UNUSED(client_ptr);
+    printf("client disconnected from broker\r\n");
 }
