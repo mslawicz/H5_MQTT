@@ -14,17 +14,18 @@
 #define ARP_CACHE_SIZE 512
 #define IP_ADDRESS_DNS_SERVER 0x08080808 // 8.8.8.8 (Google DNS)
 #define IP_ADDRESS_CLIENT IP_ADDRESS(192, 168, 1, 101)
-#define CLIENT_ID   "C2030"
+#define CLIENT_ID   "STM32"
 #define MQTT_THREAD_STACK_SIZE 1024
 #define MQTT_THREAD_PRIORITY    2
 #define MQTT_CLIENT_STACK_SIZE 1024
 #define MQTT_CLIENT_MEMORY_SIZE 1024
 //#define BROKER_IP   IP_ADDRESS(3, 73, 167, 11)  //broker.hivemq.com
-#define BROKER_IP   IP_ADDRESS(192, 168, 1, 18)  //etteplan laptop
+//#define BROKER_IP   IP_ADDRESS(192, 168, 1, 18)  //etteplan laptop
+#define BROKER_IP   IP_ADDRESS(192, 168, 1, 23)  //Marcin PC
 #define MQTT_PORT   NXD_MQTT_CLIENT_NONTLS_PORT
 #define MQTT_KEEP_ALIVE_INTERVAL    300
 #define TOPIC   "test topic"
-#define MESSAGE "test message"
+#define MESSAGE "message from STM32"
 #define PING_DATA   "ping from STM32"
 
 NX_PACKET_POOL nx_packet_pool;
@@ -118,9 +119,8 @@ VOID mqttClientThreadEntry(ULONG initial_input)
 
     while(1)
     {
-        tx_thread_sleep(MS_TO_TICKS(5000));
+        tx_thread_sleep(MS_TO_TICKS(2000));
         HAL_GPIO_TogglePin(LED_G_GPIO_Port, LED_G_Pin);
-        //nxd_mqtt_client_publish(&mqtt_client, topic_str, strlen(topic_str), msg_str, strlen(msg_str), NX_FALSE, MQTT_PUBLISH_QOS_LEVEL_0, NX_NO_WAIT);
         pResponse = &ping_response;
         status = nxd_icmp_ping(&ip_0, &broker_ip, ping_str, strlen(ping_str), &pResponse, 80);
         if(status == NX_SUCCESS)
@@ -132,6 +132,8 @@ VOID mqttClientThreadEntry(ULONG initial_input)
         {
             printf("ping no response with status %X\r\n", status);
         }
+        tx_thread_sleep(MS_TO_TICKS(2000));
+        nxd_mqtt_client_publish(&mqtt_client, topic_str, strlen(topic_str), msg_str, strlen(msg_str), NX_FALSE, MQTT_PUBLISH_QOS_LEVEL_0, NX_NO_WAIT);
     } 
 }
 
@@ -141,6 +143,7 @@ VOID mqtt_receive_callback(NXD_MQTT_CLIENT* client_ptr, UINT number_of_messages)
     UNUSED(client_ptr);
     UNUSED(number_of_messages);
     HAL_GPIO_TogglePin(LED_Y_GPIO_Port, LED_Y_Pin);
+    printf("client received a message\r\n");
 }
 
 /* Define the disconnect notify function. */
