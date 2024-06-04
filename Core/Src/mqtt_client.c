@@ -110,7 +110,8 @@ VOID mqttClientThreadEntry(ULONG initial_input)
     while(1)
     {
         tx_thread_sleep(MS_TO_TICKS(1000));
-        nxd_mqtt_client_publish(&mqtt_client, topic_str, strlen(topic_str), msg_str, strlen(msg_str), NX_FALSE, MQTT_PUBLISH_QOS_LEVEL_0, NX_NO_WAIT);
+        HAL_GPIO_TogglePin(LED_G_GPIO_Port, LED_G_Pin);
+        //nxd_mqtt_client_publish(&mqtt_client, topic_str, strlen(topic_str), msg_str, strlen(msg_str), NX_FALSE, MQTT_PUBLISH_QOS_LEVEL_0, NX_NO_WAIT);
     } 
 }
 
