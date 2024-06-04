@@ -25,6 +25,7 @@
 #define MQTT_KEEP_ALIVE_INTERVAL    300
 #define TOPIC   "test topic"
 #define MESSAGE "test message"
+#define PING_DATA   "ping from STM32"
 
 NX_PACKET_POOL nx_packet_pool;
 NX_IP ip_0;
@@ -40,6 +41,9 @@ ULONG mqtt_client_memory_buffer[MQTT_CLIENT_MEMORY_SIZE];
 NXD_ADDRESS broker_ip;
 CHAR* topic_str = TOPIC;
 CHAR* msg_str = MESSAGE;
+CHAR* ping_str = PING_DATA;
+NX_PACKET ping_response;
+NX_PACKET* pResponse;
 
 VOID mqtt_receive_callback(NXD_MQTT_CLIENT* client_ptr, UINT number_of_messages);
 static VOID mqtt_disconnect_callback(NXD_MQTT_CLIENT *client_ptr);
@@ -101,7 +105,7 @@ VOID mqttClientThreadEntry(ULONG initial_input)
     /* Connect to MQTT broker */
     broker_ip.nxd_ip_version = 4;
     broker_ip.nxd_ip_address.v4 = BROKER_IP;
-    status = nxd_mqtt_client_connect(&mqtt_client, &broker_ip, MQTT_PORT, MQTT_KEEP_ALIVE_INTERVAL, NX_FALSE, NX_WAIT_FOREVER);
+    status = nxd_mqtt_client_connect(&mqtt_client, &broker_ip, MQTT_PORT, MQTT_KEEP_ALIVE_INTERVAL, NX_TRUE, NX_WAIT_FOREVER);
     printf("MQTT client connecting to broker with status %X\r\n", status);
 
     if((status != NX_SUCCESS) && (status != NX_IN_PROGRESS))
@@ -114,9 +118,20 @@ VOID mqttClientThreadEntry(ULONG initial_input)
 
     while(1)
     {
-        tx_thread_sleep(MS_TO_TICKS(1000));
+        tx_thread_sleep(MS_TO_TICKS(5000));
         HAL_GPIO_TogglePin(LED_G_GPIO_Port, LED_G_Pin);
         //nxd_mqtt_client_publish(&mqtt_client, topic_str, strlen(topic_str), msg_str, strlen(msg_str), NX_FALSE, MQTT_PUBLISH_QOS_LEVEL_0, NX_NO_WAIT);
+        pResponse = &ping_response;
+        status = nxd_icmp_ping(&ip_0, &broker_ip, ping_str, strlen(ping_str), &pResponse, 80);
+        if(status == NX_SUCCESS)
+        {
+            printf("ping response with length %lu\r\n", pResponse->nx_packet_length);
+            nx_packet_release(pResponse);
+        }
+        else
+        {
+            printf("ping no response with status %X\r\n", status);
+        }
     } 
 }
 
