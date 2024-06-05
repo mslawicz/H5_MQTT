@@ -115,12 +115,12 @@ VOID mqttClientThreadEntry(ULONG initial_input)
         //Error_Handler();
     }
 
-    //status = nxd_mqtt_client_subscribe(&mqtt_client, topic_str, strlen(topic_str), MQTT_PUBLISH_QOS_LEVEL_0);
-    //printf("MQTT client subscribed with status %X\r\n", status);
+    status = nxd_mqtt_client_subscribe(&mqtt_client, topic_str, strlen(topic_str), MQTT_PUBLISH_QOS_LEVEL_0);
+    printf("MQTT client subscribed with status %X\r\n", status);
 
     while(1)
     {
-        tx_thread_sleep(MS_TO_TICKS(2000));
+        tx_thread_sleep(MS_TO_TICKS(1000));
         HAL_GPIO_TogglePin(LED_G_GPIO_Port, LED_G_Pin);
         pResponse = &ping_response;
         status = nxd_icmp_ping(&ip_0, &broker_ip, ping_str, strlen(ping_str), &pResponse, 80);
@@ -133,7 +133,7 @@ VOID mqttClientThreadEntry(ULONG initial_input)
         {
             printf("ping no response with status %X\r\n", status);
         }
-        tx_thread_sleep(MS_TO_TICKS(2000));
+        tx_thread_sleep(MS_TO_TICKS(1000));
         status = nxd_mqtt_client_publish(&mqtt_client, topic_str, strlen(topic_str), msg_str, strlen(msg_str), NX_FALSE, MQTT_PUBLISH_QOS_LEVEL_0, NX_NO_WAIT);
         printf("client published with status %X\r\n", status);
     } 
@@ -145,7 +145,7 @@ VOID mqtt_receive_callback(NXD_MQTT_CLIENT* client_ptr, UINT number_of_messages)
     UNUSED(client_ptr);
     UNUSED(number_of_messages);
     HAL_GPIO_TogglePin(LED_Y_GPIO_Port, LED_Y_Pin);
-    printf("client received a message\r\n");
+    //printf("client received a message\r\n");
 }
 
 /* Define the disconnect notify function. */
