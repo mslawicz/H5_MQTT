@@ -20,8 +20,9 @@
 #define MQTT_CLIENT_STACK_SIZE 1024
 #define MQTT_CLIENT_MEMORY_SIZE 1024
 //#define BROKER_IP   IP_ADDRESS(3, 73, 167, 11)  //broker.hivemq.com
-//#define BROKER_IP   IP_ADDRESS(192, 168, 1, 18)  //etteplan laptop
-#define BROKER_IP   IP_ADDRESS(192, 168, 1, 23)  //Marcin PC
+//#define BROKER_IP   IP_ADDRESS(34, 249, 184, 60)  //broker.emqx.io
+#define BROKER_IP   IP_ADDRESS(192, 168, 1, 18)  //etteplan laptop
+//#define BROKER_IP   IP_ADDRESS(192, 168, 1, 23)  //Marcin PC
 #define MQTT_PORT   NXD_MQTT_CLIENT_NONTLS_PORT
 #define MQTT_KEEP_ALIVE_INTERVAL    300
 #define TOPIC   "test topic"
