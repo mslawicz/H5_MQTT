@@ -21,8 +21,8 @@
 #define MQTT_CLIENT_MEMORY_SIZE 1024
 //#define BROKER_IP   IP_ADDRESS(3, 73, 167, 11)  //broker.hivemq.com
 //#define BROKER_IP   IP_ADDRESS(34, 249, 184, 60)  //broker.emqx.io
-#define BROKER_IP   IP_ADDRESS(192, 168, 1, 18)  //etteplan laptop
-//#define BROKER_IP   IP_ADDRESS(192, 168, 1, 23)  //Marcin PC
+//#define BROKER_IP   IP_ADDRESS(192, 168, 1, 18)  //etteplan laptop
+#define BROKER_IP   IP_ADDRESS(192, 168, 1, 23)  //Marcin PC
 #define MQTT_PORT   NXD_MQTT_CLIENT_NONTLS_PORT
 #define MQTT_KEEP_ALIVE_INTERVAL    300
 #define TOPIC   "test topic"
@@ -115,8 +115,8 @@ VOID mqttClientThreadEntry(ULONG initial_input)
         //Error_Handler();
     }
 
-    status = nxd_mqtt_client_subscribe(&mqtt_client, topic_str, strlen(topic_str), MQTT_PUBLISH_QOS_LEVEL_0);
-    printf("MQTT client subscribed with status %X\r\n", status);
+    //status = nxd_mqtt_client_subscribe(&mqtt_client, topic_str, strlen(topic_str), MQTT_PUBLISH_QOS_LEVEL_0);
+    //printf("MQTT client subscribed with status %X\r\n", status);
 
     while(1)
     {
@@ -134,7 +134,8 @@ VOID mqttClientThreadEntry(ULONG initial_input)
             printf("ping no response with status %X\r\n", status);
         }
         tx_thread_sleep(MS_TO_TICKS(2000));
-        nxd_mqtt_client_publish(&mqtt_client, topic_str, strlen(topic_str), msg_str, strlen(msg_str), NX_FALSE, MQTT_PUBLISH_QOS_LEVEL_0, NX_NO_WAIT);
+        status = nxd_mqtt_client_publish(&mqtt_client, topic_str, strlen(topic_str), msg_str, strlen(msg_str), NX_FALSE, MQTT_PUBLISH_QOS_LEVEL_0, NX_NO_WAIT);
+        printf("client published with status %X\r\n", status);
     } 
 }
 
