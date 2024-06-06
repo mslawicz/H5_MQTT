@@ -25,9 +25,10 @@
 #define BROKER_IP   IP_ADDRESS(192, 168, 1, 23)  //Marcin PC
 #define MQTT_PORT   NXD_MQTT_CLIENT_NONTLS_PORT
 #define MQTT_KEEP_ALIVE_INTERVAL    300
-#define TOPIC   "test topic"
+#define SND_TOPIC   "STM32/test"
 #define MESSAGE "message from STM32"
 #define PING_DATA   "ping from STM32"
+#define RCV_TOPIC   "C2030/test"
 
 NX_PACKET_POOL nx_packet_pool;
 NX_IP ip_0;
@@ -41,11 +42,12 @@ UCHAR mqtt_thread_stack[MQTT_THREAD_STACK_SIZE];
 ULONG mqtt_client_stack[MQTT_CLIENT_STACK_SIZE];
 ULONG mqtt_client_memory_buffer[MQTT_CLIENT_MEMORY_SIZE];
 NXD_ADDRESS broker_ip;
-CHAR* topic_str = TOPIC;
+CHAR* snd_topic_str = SND_TOPIC;
 CHAR* msg_str = MESSAGE;
 CHAR* ping_str = PING_DATA;
 NX_PACKET ping_response;
 NX_PACKET* pResponse;
+CHAR* rcv_topic_str = RCV_TOPIC;
 
 VOID mqtt_receive_callback(NXD_MQTT_CLIENT* client_ptr, UINT number_of_messages);
 static VOID mqtt_disconnect_callback(NXD_MQTT_CLIENT *client_ptr);
@@ -115,7 +117,7 @@ VOID mqttClientThreadEntry(ULONG initial_input)
         //Error_Handler();
     }
 
-    status = nxd_mqtt_client_subscribe(&mqtt_client, topic_str, strlen(topic_str), MQTT_PUBLISH_QOS_LEVEL_0);
+    status = nxd_mqtt_client_subscribe(&mqtt_client, rcv_topic_str, strlen(rcv_topic_str), MQTT_PUBLISH_QOS_LEVEL_0);
     printf("MQTT client subscribed with status %X\r\n", status);
 
     while(1)
@@ -134,7 +136,7 @@ VOID mqttClientThreadEntry(ULONG initial_input)
             printf("ping no response with status %X\r\n", status);
         }
         tx_thread_sleep(MS_TO_TICKS(1000));
-        status = nxd_mqtt_client_publish(&mqtt_client, topic_str, strlen(topic_str), msg_str, strlen(msg_str), NX_FALSE, MQTT_PUBLISH_QOS_LEVEL_0, NX_NO_WAIT);
+        status = nxd_mqtt_client_publish(&mqtt_client, snd_topic_str, strlen(snd_topic_str), msg_str, strlen(msg_str), NX_FALSE, MQTT_PUBLISH_QOS_LEVEL_0, NX_NO_WAIT);
         printf("client published with status %X\r\n", status);
     } 
 }
@@ -142,10 +144,28 @@ VOID mqttClientThreadEntry(ULONG initial_input)
 
 VOID mqtt_receive_callback(NXD_MQTT_CLIENT* client_ptr, UINT number_of_messages)
 {
-    UNUSED(client_ptr);
-    UNUSED(number_of_messages);
-    HAL_GPIO_TogglePin(LED_Y_GPIO_Port, LED_Y_Pin);
-    //printf("client received a message\r\n");
+    UINT status;
+    UCHAR topic[128]; // Adjust size as needed
+    UINT topic_length;
+    UCHAR message[256]; // Adjust size as needed
+    UINT message_length;    
+    UINT msg;
+
+    for(msg=0; msg < number_of_messages; msg++)
+    {
+        // Receive the message from the MQTT client
+        status = nxd_mqtt_client_message_get(client_ptr, topic, 128, &topic_length, message, 256, &message_length);
+        if (status == NX_SUCCESS)
+        {
+            // Process the message
+            HAL_GPIO_TogglePin(LED_Y_GPIO_Port, LED_Y_Pin);
+        }
+        else
+        {
+            // Handle the error (e.g., log it or retry)
+            HAL_GPIO_TogglePin(LED_R_GPIO_Port, LED_R_Pin);
+        }
+    }
 }
 
 /* Define the disconnect notify function. */
